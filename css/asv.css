@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css?family=Poiret+One&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Press+Start+2P|Poiret+One&display=swap');
 body{background-color: #030321;}
-.adam{color:#FF6633;font-family: 'Poiret One', cursive; font-size: 50px;}
-.vellender{color:#EEEEEE;font-family: 'Poiret One', cursive; font-size: 50px;}
+.adam{color:#ff6633;font-family: 'Poiret One', cursive; font-size: 50px;}
+.vellender{color:#eeeeee;font-family: 'Poiret One', cursive; font-size: 50px;}
+nav{color:#487ca3;font-family: 'Press Start 2P', cursive;}

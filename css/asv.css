@@ -2,4 +2,5 @@
 body{background-color: #030321;}
 .adam{color:#ff6633;font-family: 'Poiret One', cursive; font-size: 50px;}
 .vellender{color:#eeeeee;font-family: 'Poiret One', cursive; font-size: 50px;}
-nav{color:#487ca3;font-family: 'Press Start 2P', cursive;}
+nav a{color:#487ca3;font-family: 'Press Start 2P', cursive;}
+nav a:hover{color:#487cff;font-family: 'Press Start 2P', cursive;}

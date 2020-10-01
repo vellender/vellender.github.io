@@ -1,0 +1,148 @@
+Letting A=Monedi, B=Twosdi, ..., G=Svendi,
+each row of the following giving 
+['ringsOnPlanting','ringsOnInundation','ringsOnHarvest'] ['Current day (heaviest stone)'] dayOfHarvest
+
+All of this is pre-harvest (as stone G isn't on the harvest peg yet):
+
+['GFEDCBA', '', ''] ['A'] 0
+['GFEDCB', '', 'A'] ['B'] 0
+['GFEDC', 'B', 'A'] ['C'] 0
+['GFEDC', 'BA', ''] ['C'] 0
+['GFED', 'BA', 'C'] ['D'] 0
+['GFEDA', 'B', 'C'] ['C'] 0
+['GFEDA', '', 'CB'] ['B'] 0
+['GFED', '', 'CBA'] ['D'] 0
+['GFE', 'D', 'CBA'] ['E'] 0
+['GFE', 'DA', 'CB'] ['E'] 0
+['GFEB', 'DA', 'C'] ['C'] 0
+['GFEBA', 'D', 'C'] ['D'] 0
+['GFEBA', 'DC', ''] ['C'] 0
+['GFEB', 'DC', 'A'] ['C'] 0
+['GFE', 'DCB', 'A'] ['E'] 0
+['GFE', 'DCBA', ''] ['E'] 0
+['GF', 'DCBA', 'E'] ['F'] 0
+['GFA', 'DCB', 'E'] ['E'] 0
+['GFA', 'DC', 'EB'] ['C'] 0
+['GF', 'DC', 'EBA'] ['F'] 0
+['GFC', 'D', 'EBA'] ['D'] 0
+['GFC', 'DA', 'EB'] ['C'] 0
+['GFCB', 'DA', 'E'] ['E'] 0
+['GFCBA', 'D', 'E'] ['E'] 0
+['GFCBA', '', 'ED'] ['D'] 0
+['GFCB', '', 'EDA'] ['B'] 0
+['GFC', 'B', 'EDA'] ['C'] 0
+['GFC', 'BA', 'ED'] ['D'] 0
+['GF', 'BA', 'EDC'] ['F'] 0
+['GFA', 'B', 'EDC'] ['C'] 0
+['GFA', '', 'EDCB'] ['B'] 0
+['GF', '', 'EDCBA'] ['F'] 0
+['G', 'F', 'EDCBA'] ['G'] 0
+['G', 'FA', 'EDCB'] ['G'] 0
+['GB', 'FA', 'EDC'] ['C'] 0
+['GBA', 'F', 'EDC'] ['F'] 0
+['GBA', 'FC', 'ED'] ['D'] 0
+['GB', 'FC', 'EDA'] ['C'] 0
+['G', 'FCB', 'EDA'] ['G'] 0
+['G', 'FCBA', 'ED'] ['G'] 0
+['GD', 'FCBA', 'E'] ['E'] 0
+['GDA', 'FCB', 'E'] ['E'] 0
+['GDA', 'FC', 'EB'] ['C'] 0
+['GD', 'FC', 'EBA'] ['D'] 0
+['GDC', 'F', 'EBA'] ['F'] 0
+['GDC', 'FA', 'EB'] ['C'] 0
+['GDCB', 'FA', 'E'] ['E'] 0
+['GDCBA', 'F', 'E'] ['F'] 0
+['GDCBA', 'FE', ''] ['E'] 0
+['GDCB', 'FE', 'A'] ['E'] 0
+['GDC', 'FEB', 'A'] ['C'] 0
+['GDC', 'FEBA', ''] ['C'] 0
+['GD', 'FEBA', 'C'] ['D'] 0
+['GDA', 'FEB', 'C'] ['C'] 0
+['GDA', 'FE', 'CB'] ['E'] 0
+['GD', 'FE', 'CBA'] ['E'] 0
+['G', 'FED', 'CBA'] ['G'] 0
+['G', 'FEDA', 'CB'] ['G'] 0
+['GB', 'FEDA', 'C'] ['C'] 0
+['GBA', 'FED', 'C'] ['D'] 0
+['GBA', 'FEDC', ''] ['C'] 0
+['GB', 'FEDC', 'A'] ['C'] 0
+['G', 'FEDCB', 'A'] ['G'] 0
+['G', 'FEDCBA', ''] ['G'] 0
+
+
+Then 'G' hits the harvest peg - Harvest begins
+
+['', 'FEDCBA', 'G'] ['G'] 1
+['A', 'FEDCB', 'G'] ['G'] 2
+['A', 'FEDC', 'GB'] ['C'] 3
+['', 'FEDC', 'GBA'] ['C'] 4
+['C', 'FED', 'GBA'] ['D'] 5
+['C', 'FEDA', 'GB'] ['C'] 6
+['CB', 'FEDA', 'G'] ['G'] 7
+['CBA', 'FED', 'G'] ['G'] 8
+['CBA', 'FE', 'GD'] ['E'] 9
+['CB', 'FE', 'GDA'] ['E'] 10
+['C', 'FEB', 'GDA'] ['C'] 11
+['C', 'FEBA', 'GD'] ['D'] 12
+['', 'FEBA', 'GDC'] ['C'] 13
+['A', 'FEB', 'GDC'] ['C'] 14
+['A', 'FE', 'GDCB'] ['E'] 15
+['', 'FE', 'GDCBA'] ['E'] 16
+['E', 'F', 'GDCBA'] ['F'] 17
+&&&&&&&&&&&&&&&&&&&&&&&&&&&& <-----LEAP DAY
+['E', 'FA', 'GDCB'] ['E'] 18
+['EB', 'FA', 'GDC'] ['C'] 19
+**************************** <-----LEAP DAY
+['EBA', 'F', 'GDC'] ['F'] 20
+['EBA', 'FC', 'GD'] ['D'] 21
+['EB', 'FC', 'GDA'] ['C'] 22
+['E', 'FCB', 'GDA'] ['E'] 23
+['E', 'FCBA', 'GD'] ['E'] 24
+['ED', 'FCBA', 'G'] ['G'] 25
+['EDA', 'FCB', 'G'] ['G'] 26
+['EDA', 'FC', 'GB'] ['C'] 27
+['ED', 'FC', 'GBA'] ['D'] 28
+['EDC', 'F', 'GBA'] ['F'] 29
+&&&&&&&&&&&&&&&&&&&&&&&&&&&& <-----LEAP DAY
+['EDC', 'FA', 'GB'] ['C'] 30
+['EDCB', 'FA', 'G'] ['G'] 31
+**************************** <-----LEAP DAY
+['EDCBA', 'F', 'G'] ['G'] 32
+['EDCBA', '', 'GF'] ['F'] 33
+&&&&&&&&&&&&&&&&&&&&&&&&&&&& <-----LEAP DAY
+['EDCB', '', 'GFA'] ['B'] 34
+['EDC', 'B', 'GFA'] ['C'] 35
+**************************** <-----LEAP DAY
+['EDC', 'BA', 'GF'] ['F'] 36
+['ED', 'BA', 'GFC'] ['D'] 37
+['EDA', 'B', 'GFC'] ['C'] 38
+['EDA', '', 'GFCB'] ['B'] 39
+['ED', '', 'GFCBA'] ['D'] 40
+['E', 'D', 'GFCBA'] ['E'] 41
+['E', 'DA', 'GFCB'] ['E'] 42
+['EB', 'DA', 'GFC'] ['C'] 43
+['EBA', 'D', 'GFC'] ['D'] 44
+['EBA', 'DC', 'GF'] ['F'] 45
+&&&&&&&&&&&&&&&&&&&&&&&&&&&& <-----LEAP DAY
+['EB', 'DC', 'GFA'] ['C'] 46
+['E', 'DCB', 'GFA'] ['E'] 47
+**************************** <-----LEAP DAY
+['E', 'DCBA', 'GF'] ['F'] 48
+['', 'DCBA', 'GFE'] ['E'] 49
+['A', 'DCB', 'GFE'] ['E'] 50
+['A', 'DC', 'GFEB'] ['C'] 51
+['', 'DC', 'GFEBA'] ['C'] 52
+['C', 'D', 'GFEBA'] ['D'] 53
+['C', 'DA', 'GFEB'] ['C'] 54
+['CB', 'DA', 'GFE'] ['E'] 55
+['CBA', 'D', 'GFE'] ['E'] 56
+['CBA', '', 'GFED'] ['D'] 57
+['CB', '', 'GFEDA'] ['B'] 58
+['C', 'B', 'GFEDA'] ['C'] 59
+['C', 'BA', 'GFED'] ['D'] 60
+['', 'BA', 'GFEDC'] ['C'] 61
+['A', 'B', 'GFEDC'] ['C'] 62
+['A', '', 'GFEDCB'] ['B'] 63
+['', '', 'GFEDCBA'] ['A'] 64
+
+So 8 leap days, 64 "normal" days of Harvest = 72?

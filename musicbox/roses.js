@@ -30,8 +30,7 @@ var d=0;
                                             "-moz-transform": "rotate("+d*36/32+"deg)",
                                             "transform": "rotate(-"+d*36/32+"deg)"});
                     
-                    console.log(d);
-                    
+                                      
                     if (d==319){d=0;} else {d++};
                     };
         

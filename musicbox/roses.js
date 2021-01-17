@@ -35,10 +35,9 @@ var d=0;
                     if (d==319){d=0;} else {d++};
                     };
         
-        document.querySelector('button').addEventListener('click', async () => {
+        $('#r').click(async () => {
             await Tone.start()
             console.log('audio is ready')
-             
-                    setInterval(callback,40);
-        })
+            var anim=setInterval(callback,40);
+        });
         

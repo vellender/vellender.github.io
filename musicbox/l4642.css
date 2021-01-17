@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Yusei+Magic&display=swap');
 h2 {font-family: 'Yusei Magic', sans-serif;}
 h3 {font-family: 'Yusei Magic', sans-serif; margin-top:-20px;}
-#r {margin-top: 20px; font-size: 20px; background-color: #d23c3c; color: #ffffff;}
+#r {margin-top: 20px; padding:10px; font-size: 30px; background-color: #d23c3c; color: #ffffff;}
 #arrow {margin-left: -15px;}

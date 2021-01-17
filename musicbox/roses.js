@@ -1,3 +1,9 @@
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+
+gtag('config', 'G-RFGLEDVC4Y');
+
 var d=0;
         const callback = () => {
                     //Cs

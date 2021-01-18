@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Yusei+Magic&display=swap');
 h2 {font-family: 'Yusei Magic', sans-serif;}
 h3 {font-family: 'Yusei Magic', sans-serif; margin-top:-20px;}
-#r {margin-bottom: 20px; padding:10px; font-size: 20px; background-color: #d23c3c; color: #ffffff; font-family: 'Yusei Magic', sans-serif;}
+#r {margin-bottom: 20px; padding:10px; font-size: 20px; background-color: #3cd23c; color: #ffffff; font-family: 'Yusei Magic', sans-serif;}
+#stop {margin-bottom: 20px; padding:10px; font-size: 20px; background-color: #d23c3c; color: #ffffff; font-family: 'Yusei Magic', sans-serif;}
 #arrow {margin-left: -15px;}

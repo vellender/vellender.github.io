@@ -1,0 +1,25 @@
+.column {
+  float: left;
+  width: 33.33%;
+}
+
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}  
+#c1 {background-color: #fce8e9;}
+#c2 {background-color: #e9e8fc;}
+#c3 {background-color: #e8fce8;}
+.P {color: #006400;}
+.A {color: #00008B;}
+.S {color: #ff8c00;} 
+.strike{text-decoration:line-through;opacity: 0.5;}
+h1 {font-variant: small-caps;}
+h2 {color: #333333;}
+.counter {font-style: italic;}
+
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu&display=swap');
+
+body {font-family: 'Ubuntu', sans-serif;}
+

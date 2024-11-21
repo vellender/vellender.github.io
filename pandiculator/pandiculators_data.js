@@ -14,9 +14,9 @@ const puzzles = [
     new Puzzle("P002", "Surveying the Hoard", "Crossnumbers Quarterly", "2021-04", "P002_surveying_the_hoard.pdf", "Numerical puzzle."),
     new Puzzle("P003", "Penrose", "Magpie", "2021-08", "P003_penrose.pdf", "Numerical puzzle set on a Penrose tiling."),
     new Puzzle("P004", "Boring", "Magpie", "2023-04", "P004_boring.pdf", "My first published cryptic crossword."),
-    new Puzzle("P005", "No Subtitles", "Crossword Centre", "2023-11", "P005_no_subtitles.pdf", ""),
+    new Puzzle("P005", "No Subtitles", "Crossword Centre", "2023-11", "P005_no_subtitles.pdf", "Published online as the monthly puzzle on <a href='http://www.crossword.org.uk'>The Crossword Centre</a>."),
     new Puzzle("P006", "Sketchy", "Magpie", "2024-05", "P006_sketchy.pdf", ""),
-    new Puzzle("P007", "Petitioned King", "Enigmatic Variations", "2024-07-28", "P007_petitioned_king.pdf", ""),
+    new Puzzle("P007", "Petitioned King", "Enigmatic Variations", "2024-07-28", "P007_petitioned_king.pdf", "My first EV puzzle."),
     new Puzzle("P008", "Security Through Obscurity", "Magpie", "2024-09", "P008_security_through_obscurity.pdf", ""),
     new Puzzle("P009", "For Me and You", "Listener", "2024-11-16", "P009_for_me_and_you.pdf", "The publication date is of relevance to the puzzle, so may be worth noting.")
 ];

@@ -22,7 +22,8 @@ const puzzles = [
     new Puzzle("P010", "Leaders", "Magpie", "2025-03","P010_leaders.pdf",""),
     new Puzzle("P011", "Lines", "Inquisitor", "2025-04-12", "P011_lines.pdf", "My first IQ puzzle."),
     new Puzzle("P012", "Romantic Piece", "Listener", "2025-07-26", "P012_romantic_piece.pdf", ""),
-    new Puzzle("P013", "Design Classic", "Enigmatic Variations", "2026-01-11", "P013_design_classic.pdf", "")
+    new Puzzle("P013", "Design Classic", "Enigmatic Variations", "2026-01-11", "P013_design_classic.pdf", ""),
+    new Puzzle("P014", "Inside Job", "Magpie", "2026-03", "P014_inside_job.pdf", "")
 ];
 
 function generateTable(puzzles) {

@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bellringing on 6 bells: 720-row permutohedron</title>
+<style>
+  :root {
+    --bg:#f7f7fb; --ink:#111827; --muted:#6b7280; --panel:#fff; --border:#d1d5db;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+  .wrap{max-width:1700px;margin:0 auto;padding:1rem;display:grid;grid-template-columns:380px 1fr;gap:1rem}
+  .panel,.viewer{background:var(--panel);border:1px solid var(--border);border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+  .panel{padding:1rem;max-height:calc(100vh - 2rem);overflow:auto}
+  .viewer{overflow:hidden;min-height:940px;position:relative}
+  h1{margin:0 0 .5rem;font-size:1.5rem} h2{margin:1rem 0 .45rem;font-size:1rem}
+  p{font-size:.91rem;line-height:1.44} code{background:#f3f4f6;padding:.08rem .24rem;border-radius:4px}
+  .controls{display:flex;flex-wrap:wrap;gap:.5rem;margin:.7rem 0}
+  button{padding:.55rem .72rem;border-radius:8px;border:1px solid var(--border);background:#fff;cursor:pointer;font-size:.88rem}
+  button:hover{background:#f3f4f6} button.active{border-color:#111827;box-shadow:inset 0 0 0 1px #111827;background:#eef2ff}
+  .speed-control{margin:.9rem 0 .2rem}.speed-control label{display:flex;justify-content:space-between;gap:.75rem;align-items:baseline;font-size:.91rem;font-weight:600}
+  .speed-control output{color:var(--muted);font-weight:500;font-variant-numeric:tabular-nums}.speed-control input[type=range]{width:100%;margin-top:.4rem}
+  .legend-row{display:grid;grid-template-columns:28px 1fr;align-items:center;gap:.5rem;margin:.24rem 0;font-size:.84rem}.swatch{height:4px;border-radius:999px}
+  .small,.status{color:var(--muted);font-size:.82rem;line-height:1.4}.toggles{display:flex;gap:.8rem;flex-wrap:wrap;margin-top:.55rem}.toggles label{font-size:.84rem;display:flex;gap:.32rem;align-items:center}
+  svg{width:100%;height:940px;display:block;background:linear-gradient(180deg,#fff 0%,#fbfbfe 100%);user-select:none;touch-action:none;cursor:grab}
+  svg.dragging{cursor:grabbing}
+  .group-title{font-weight:650;margin-top:.55rem;font-size:.84rem}
+  @media(max-width:1100px){.wrap{grid-template-columns:1fr}.panel{max-height:none}.viewer,svg{min-height:74vh;height:74vh}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<aside class="panel">
+  <h1>Bellringing on 6 bells</h1>
+  <p>
+    The 720 rows are the vertices of the five-dimensional <strong>permutohedron</strong>. They are first put in
+    their natural 5D hyperplane and then projected into 3D; you can rotate that 3D projection with the mouse.
+  </p>
+  <p>
+    As on the smaller versions, the geometric vertices are labelled by the <em>inverse</em> permutation. This makes
+    adjacent swaps of <strong>places</strong> into genuine permutohedron edges. Simultaneous independent swaps appear as
+    diagonals of square faces; <code>(12)(34)(56)</code> is the long diagonal of a cubical 3-face.
+  </p>
+
+  <h2>Animation</h2>
+  <div class="controls">
+    <button id="btnReset">Reset view</button>
+    <button id="btnClear">Clear animation</button>
+    <button id="btnHunt">Plain Hunt</button>
+    <button id="btnCourse">Plain Bob Minor (plain course)</button>
+    <button id="btnExtent">Plain Bob Minor (720)</button>
+  </div>
+  <div class="speed-control">
+    <label for="speed"><span>Animation speed</span><output id="speedValue">8.0 changes/s</output></label>
+    <input id="speed" type="range" min="0.5" max="60" step="0.5" value="8" />
+  </div>
+  <div class="toggles">
+    <label><input id="showFaces" type="checkbox" checked /> show 2-faces</label>
+    <label><input id="showLabels" type="checkbox" /> show row labels</label>
+    <label><input id="showDiagonals" type="checkbox" checked /> show simultaneous changes</label>
+  </div>
+  <p class="small">
+    Drag to rotate. Mouse wheel or <code>+</code>/<code>−</code> zooms; <code>0</code> restores 100% zoom.
+    Row labels are off initially because there are 720 of them; hover a vertex to see its row.
+  </p>
+
+  <h2>Twelve legal changes</h2>
+  <div class="group-title">Edges — one adjacent pair</div>
+  <div class="legend-row"><div class="swatch" style="background:#2563eb"></div><div><code>(12)</code></div></div>
+  <div class="legend-row"><div class="swatch" style="background:#059669"></div><div><code>(23)</code></div></div>
+  <div class="legend-row"><div class="swatch" style="background:#d97706"></div><div><code>(34)</code></div></div>
+  <div class="legend-row"><div class="swatch" style="background:#7c3aed"></div><div><code>(45)</code></div></div>
+  <div class="legend-row"><div class="swatch" style="background:#0891b2"></div><div><code>(56)</code></div></div>
+
+  <div class="group-title">Square-face diagonals — two independent pairs</div>
+  <div class="legend-row"><div class="swatch" style="background:#dc2626"></div><div><code>(12)(34)</code></div></div>
+  <div class="legend-row"><div class="swatch" style="background:#be185d"></div><div><code>(12)(45)</code></div></div>
+  <div class="legend-row"><div class="swatch" style="background:#9333ea"></div><div><code>(12)(56)</code></div></div>
+  <div class="legend-row"><div class="swatch" style="background:#ea580c"></div><div><code>(23)(45)</code></div></div>
+  <div class="legend-row"><div class="swatch" style="background:#0f766e"></div><div><code>(23)(56)</code></div></div>
+  <div class="legend-row"><div class="swatch" style="background:#4f46e5"></div><div><code>(34)(56)</code></div></div>
+
+  <div class="group-title">Cubical 3-face diagonal — three independent pairs</div>
+  <div class="legend-row"><div class="swatch" style="background:#991b1b"></div><div><code>(12)(34)(56)</code></div></div>
+
+  <h2>Methods</h2>
+  <p class="small">
+    Plain Hunt alternates <code>(12)(34)(56)</code> with <code>(23)(45)</code> and returns to rounds after 12 changes.
+    Plain Bob Minor has place notation <code>x16 x16 x16 x16 x16 x12</code>; a plain course is five 12-change leads,
+    hence 60 changes.
+  </p>
+  <p class="small">
+    The 720 uses ordinary Plain Bob Minor lead-end calls: plain <code>12</code>, bob <code>14</code>, single
+    <code>1234</code>. The 60-lead composition is J. F. Penning's extent, expanded here directly as P/B/S calls.
+  </p>
+  <div id="methodInfo" class="status">Choose a method to start.</div>
+</aside>
+
+<main class="viewer">
+  <svg id="svg" viewBox="0 0 1180 940" aria-label="Rotatable 3D projection of the six-bell permutohedron"></svg>
+</main>
+</div>
+
+<script>
+const svg=document.getElementById('svg');
+const methodInfo=document.getElementById('methodInfo');
+const showFacesBox=document.getElementById('showFaces');
+const showLabelsBox=document.getElementById('showLabels');
+const showDiagonalsBox=document.getElementById('showDiagonals');
+
+const MOVE_INFO={
+  '12':       {label:'(12)',          color:'#2563eb',swaps:[[0,1]],kind:'edge'},
+  '23':       {label:'(23)',          color:'#059669',swaps:[[1,2]],kind:'edge'},
+  '34':       {label:'(34)',          color:'#d97706',swaps:[[2,3]],kind:'edge'},
+  '45':       {label:'(45)',          color:'#7c3aed',swaps:[[3,4]],kind:'edge'},
+  '56':       {label:'(56)',          color:'#0891b2',swaps:[[4,5]],kind:'edge'},
+  '12_34':    {label:'(12)(34)',      color:'#dc2626',swaps:[[0,1],[2,3]],kind:'squareDiagonal'},
+  '12_45':    {label:'(12)(45)',      color:'#be185d',swaps:[[0,1],[3,4]],kind:'squareDiagonal'},
+  '12_56':    {label:'(12)(56)',      color:'#9333ea',swaps:[[0,1],[4,5]],kind:'squareDiagonal'},
+  '23_45':    {label:'(23)(45)',      color:'#ea580c',swaps:[[1,2],[3,4]],kind:'squareDiagonal'},
+  '23_56':    {label:'(23)(56)',      color:'#0f766e',swaps:[[1,2],[4,5]],kind:'squareDiagonal'},
+  '34_56':    {label:'(34)(56)',      color:'#4f46e5',swaps:[[2,3],[4,5]],kind:'squareDiagonal'},
+  '12_34_56': {label:'(12)(34)(56)',  color:'#991b1b',swaps:[[0,1],[2,3],[4,5]],kind:'cubeDiagonal'}
+};
+const SINGLE_MOVES=['12','23','34','45','56'];
+const DOUBLE_MOVES=['12_34','12_45','12_56','23_45','23_56','34_56'];
+const TRIPLE_MOVES=['12_34_56'];
+const ALL_MOVES=[...SINGLE_MOVES,...DOUBLE_MOVES,...TRIPLE_MOVES];
+
+function permutations(arr){
+  const result=[];
+  function backtrack(i){
+    if(i===arr.length){result.push(arr.join(''));return}
+    for(let j=i;j<arr.length;j++){
+      [arr[i],arr[j]]=[arr[j],arr[i]];backtrack(i+1);[arr[i],arr[j]]=[arr[j],arr[i]];
+    }
+  }
+  backtrack(0);result.sort();return result;
+}
+const rows=permutations(['1','2','3','4','5','6']);
+
+function applyMove(row,move){
+  const a=row.split('');
+  for(const [i,j] of MOVE_INFO[move].swaps)[a[i],a[j]]=[a[j],a[i]];
+  return a.join('');
+}
+function inverseRow(row){
+  let inv='';for(let bell=1;bell<=6;bell++)inv+=String(row.indexOf(String(bell))+1);return inv;
+}
+
+// Orthonormal basis for x1+...+x6=0 in R^6, giving intrinsic R^5 coordinates.
+const HYPERPLANE_BASIS=[];
+for(let k=1;k<=5;k++){
+  const den=Math.sqrt(k*(k+1));
+  const v=Array(6).fill(0);
+  for(let i=0;i<k;i++)v[i]=1/den;
+  v[k]=-k/den;
+  HYPERPLANE_BASIS.push(v);
+}
+
+// Generic orthogonal 5D -> 3D projection chosen to avoid near-overlap of the 720 projected vertices.
+const PROJECTION_5_TO_3=[
+  [-0.4107980692,  0.7998821710, -0.0374372130, -0.4297595121,  0.0730662422],
+  [-0.2900833172, -0.3348625806,  0.6589458528, -0.4691014664, -0.3865913843],
+  [-0.1963257277, -0.4565590682, -0.6220088031, -0.5768751491,  0.1825654325]
+];
+
+function rowToPoint(row){
+  // Inverse labelling makes bellringing place swaps correspond to adjacent-value swaps geometrically.
+  const gp=inverseRow(row);
+  const p6=gp.split('').map(Number).map(v=>v-3.5);
+  const q5=HYPERPLANE_BASIS.map(b=>p6.reduce((s,x,i)=>s+x*b[i],0));
+  const q3=PROJECTION_5_TO_3.map(b=>q5.reduce((s,x,i)=>s+x*b[i],0));
+  const scale=88;
+  return{x:q3[0]*scale,y:q3[1]*scale,z:q3[2]*scale};
+}
+const nodes=rows.map(row=>({row,pos:rowToPoint(row)}));
+
+function canonicalFaceKey(faceRows){return[...faceRows].sort().join('|')}
+
+// The 2-faces of the 5D permutohedron: squares from commuting generators,
+// hexagons from adjacent-generator braid relations.
+function buildFaces(){
+  const faces=[],seen=new Set();
+  const squarePairs=[['12','34'],['12','45'],['12','56'],['23','45'],['23','56'],['34','56']];
+  const hexPairs=[['12','23'],['23','34'],['34','45'],['45','56']];
+  for(const r of rows){
+    for(const[a,b]of squarePairs){
+      const r1=applyMove(r,a),r2=applyMove(r1,b),r3=applyMove(r,b);
+      const face=[r,r1,r2,r3],key=canonicalFaceKey(face);
+      if(!seen.has(key)){seen.add(key);faces.push({rows:face,sides:4})}
+    }
+    for(const[a,b]of hexPairs){
+      const face=[r];let cur=r;
+      for(const m of[a,b,a,b,a]){cur=applyMove(cur,m);face.push(cur)}
+      const key=canonicalFaceKey(face);
+      if(!seen.has(key)){seen.add(key);faces.push({rows:face,sides:6})}
+    }
+  }
+  return faces;
+}
+const FACES=buildFaces();
+
+// Every legal ringing change, stored once as an undirected line.
+const edges=[],seenEdges=new Set();
+for(const row of rows){
+  for(const move of ALL_MOVES){
+    const other=applyMove(row,move),[a,b]=[row,other].sort(),key=`${a}|${b}`;
+    if(!seenEdges.has(key)){seenEdges.add(key);edges.push({a,b,move,key})}
+  }
+}
+
+function edgeStep(from,to,move,meta={}){return{from,to,move,key:[from,to].sort().join('|'),...meta}}
+function methodFromPattern(name,pattern,start='123456',maxSteps=2000){
+  const distinct=[start],seen=new Set([start]),edgeSteps=[];let row=start;
+  for(let i=0;i<maxSteps;i++){
+    const move=pattern[i%pattern.length],next=applyMove(row,move);
+    edgeSteps.push(edgeStep(row,next,move));row=next;
+    if(row===start)return{name,rows:distinct,edges:edgeSteps,closed:true};
+    if(seen.has(row))return{name,rows:distinct,edges:edgeSteps,closed:false};
+    seen.add(row);distinct.push(row);
+  }
+  return{name,rows:distinct,edges:edgeSteps,closed:false};
+}
+
+// Plain Bob Minor: x16 x16 x16 x16 x16 x12.
+const HUNT_A='12_34_56'; // x
+const HUNT_B='23_45';    // 16
+const PLAIN_END='34_56'; // 12
+const BOB_END='23_56';   // 14
+const SINGLE_END='56';   // 1234
+const LEAD_PREFIX=[HUNT_A,HUNT_B,HUNT_A,HUNT_B,HUNT_A,HUNT_B,HUNT_A,HUNT_B,HUNT_A,HUNT_B,HUNT_A];
+
+function plainBobMinor(name,callSequence){
+  const distinct=['123456'],seen=new Set(distinct),edgeSteps=[];let row='123456';
+  callSequence.forEach((call,leadIndex)=>{
+    LEAD_PREFIX.forEach((move,changeInLead)=>{
+      const next=applyMove(row,move);
+      edgeSteps.push(edgeStep(row,next,move,{lead:leadIndex+1,changeInLead:changeInLead+1,call:null}));
+      row=next;if(row!=='123456'&&!seen.has(row)){seen.add(row);distinct.push(row)}
+    });
+    const move=call==='B'?BOB_END:call==='S'?SINGLE_END:PLAIN_END;
+    const next=applyMove(row,move);
+    edgeSteps.push(edgeStep(row,next,move,{lead:leadIndex+1,changeInLead:12,call}));
+    row=next;if(row!=='123456'&&!seen.has(row)){seen.add(row);distinct.push(row)}
+  });
+  return{name,rows:distinct,edges:edgeSteps,closed:row==='123456',calls:callSequence.join(' ')};
+}
+
+// J. F. Penning's 720 Plain Bob Minor, expanded from the published blocks:
+// a = --s--pp, b = s--s-pp, c = s--s-p, d = s--sp, e = -s--p;
+// a b b b c c d d d e.
+const A_BLOCK=['B','B','S','B','B','P','P'];
+const B_BLOCK=['S','B','B','S','B','P','P'];
+const C_BLOCK=['S','B','B','S','B','P'];
+const D_BLOCK=['S','B','B','S','P'];
+const E_BLOCK=['B','S','B','B','P'];
+const EXTENT_CALLS=[...A_BLOCK,...B_BLOCK,...B_BLOCK,...B_BLOCK,...C_BLOCK,...C_BLOCK,...D_BLOCK,...D_BLOCK,...D_BLOCK,...E_BLOCK];
+
+const METHODS={
+  hunt:methodFromPattern('Plain Hunt',[HUNT_A,HUNT_B]),
+  course:plainBobMinor('Plain Bob Minor (plain course)',Array(5).fill('P')),
+  extent:plainBobMinor('Plain Bob Minor (720)',EXTENT_CALLS)
+};
+
+console.assert(rows.length===720,'Row count validation failed');
+console.assert(METHODS.hunt.closed&&METHODS.hunt.edges.length===12&&METHODS.hunt.rows.length===12,'Plain Hunt validation failed');
+console.assert(METHODS.course.closed&&METHODS.course.edges.length===60&&METHODS.course.rows.length===60,'Plain course validation failed');
+console.assert(METHODS.extent.closed&&METHODS.extent.edges.length===720&&METHODS.extent.rows.length===720,'720 validation failed');
+console.assert(FACES.filter(f=>f.sides===4).length===1080&&FACES.filter(f=>f.sides===6).length===480,'Face count validation failed');
+console.assert(edges.length===4320,'Legal move count validation failed');
+
+const animation={running:false,methodKey:null,stepIndex:0,progress:0,speed:8,lastTime:null,visited:new Set(),rafId:null,flashPhase:0};
+let rotX=-0.48,rotY=0.64,zoom=0.95;
+const MIN_ZOOM=0.22,MAX_ZOOM=5.0,centerX=590,centerY=480,camera=1100;
+let projectedByRow={};
+let nodeEls=new Map();
+let travellerEl=null;
+let renderQueued=false;
+
+function rotatePoint({x,y,z}){
+  let x1=x,y1=y,z1=z;
+  const cy=Math.cos(rotY),sy=Math.sin(rotY);let x2=x1*cy+z1*sy,z2=-x1*sy+z1*cy;x1=x2;z1=z2;
+  const cx=Math.cos(rotX),sx=Math.sin(rotX);let y2=y1*cx-z1*sx,z3=y1*sx+z1*cx;
+  return{x:x1,y:y2,z:z3};
+}
+function project(p){const r=rotatePoint(p),perspective=camera/(camera-r.z),s=perspective*zoom;return{x:centerX+r.x*s,y:centerY-r.y*s,z:r.z,scale:s}}
+function setZoom(v){zoom=Math.max(MIN_ZOOM,Math.min(MAX_ZOOM,v));queueRender()}
+function zoomBy(f){setZoom(zoom*f)}
+function el(name,attrs={},text=null){const e=document.createElementNS('http://www.w3.org/2000/svg',name);for(const[k,v]of Object.entries(attrs))e.setAttribute(k,v);if(text!==null)e.textContent=text;return e}
+function queueRender(){if(renderQueued)return;renderQueued=true;requestAnimationFrame(()=>{renderQueued=false;renderScene()})}
+
+function renderScene(){
+  svg.innerHTML='';nodeEls=new Map();travellerEl=null;
+  const projectedNodes=nodes.map(n=>({...n,proj:project(n.pos)}));
+  projectedByRow=Object.fromEntries(projectedNodes.map(n=>[n.row,n]));
+  const objects=[];
+
+  if(showFacesBox.checked){
+    for(const face of FACES){
+      const verts=face.rows.map(r=>projectedByRow[r].proj),z=verts.reduce((s,p)=>s+p.z,0)/verts.length;
+      objects.push({type:'face',z,verts,sides:face.sides});
+    }
+  }
+  for(const e of edges){
+    const info=MOVE_INFO[e.move];
+    if(info.kind!=='edge'&&!showDiagonalsBox.checked)continue;
+    const A=projectedByRow[e.a].proj,B=projectedByRow[e.b].proj;
+    objects.push({type:'edge',z:(A.z+B.z)/2,A,B,edge:e});
+  }
+  for(const n of projectedNodes)objects.push({type:'node',z:n.proj.z,node:n});
+  objects.sort((a,b)=>a.z-b.z);
+
+  svg.appendChild(el('text',{x:590,y:30,'text-anchor':'middle','font-size':25,'font-weight':'600',fill:'#111827'},'All 720 rows on 6 bells'));
+  svg.appendChild(el('text',{x:590,y:54,'text-anchor':'middle','font-size':14,fill:'#6b7280'},'3D projection of the 5D permutohedron'));
+
+  for(const obj of objects){
+    if(obj.type==='face'){
+      const points=obj.verts.map(p=>`${p.x},${p.y}`).join(' '),front=obj.z>0;
+      const fill=obj.sides===4?'#93c5fd':'#c4b5fd';
+      const opacity=obj.sides===4?(front?.006:.0018):(front?.0035:.0010);
+      svg.appendChild(el('polygon',{points,fill,'fill-opacity':opacity,stroke:'#64748b','stroke-opacity':front?.018:.006,'stroke-width':.28,'stroke-linejoin':'round'}));
+    }else if(obj.type==='edge'){
+      const{A,B,edge}=obj,info=MOVE_INFO[edge.move];
+      const isSingle=info.kind==='edge',isTriple=info.kind==='cubeDiagonal';
+      svg.appendChild(el('line',{
+        x1:A.x,y1:A.y,x2:B.x,y2:B.y,stroke:info.color,
+        'stroke-width':isSingle?.75:(isTriple?.72:.55),'stroke-linecap':'round',
+        opacity:isSingle?.34:(isTriple?.18:.13)
+      }));
+    }else{
+      const{node}=obj,p=node.proj,visited=animation.visited.has(node.row),r=Math.max(1.8,Math.min(4.0,2.7*p.scale));
+      const circle=el('circle',{cx:p.x,cy:p.y,r,fill:visited?'#111827':'#ffffff',stroke:'#111827','stroke-width':.55});
+      circle.appendChild(el('title',{},node.row));
+      svg.appendChild(circle);nodeEls.set(node.row,circle);
+      if(showLabelsBox.checked){
+        const dx=p.x-centerX,dy=p.y-centerY,len=Math.hypot(dx,dy)||1,offset=4.2+r,lx=p.x+offset*dx/len,ly=p.y+offset*dy/len;
+        svg.appendChild(el('text',{x:lx,y:ly,'font-size':6.6,'text-anchor':dx>=0?'start':'end','dominant-baseline':'middle',fill:'#111827','paint-order':'stroke','stroke':'#ffffff','stroke-width':1.7,'stroke-opacity':.92},node.row));
+      }
+    }
+  }
+
+  travellerEl=el('circle',{cx:-100,cy:-100,r:6,fill:'#facc15',stroke:'#111827','stroke-width':1.15});
+  svg.appendChild(travellerEl);
+  updateTravellerVisual();
+}
+
+function markVisited(row){animation.visited.add(row);const c=nodeEls.get(row);if(c)c.setAttribute('fill','#111827')}
+function updateTravellerVisual(){
+  if(!travellerEl)return;
+  const method=animation.methodKey?METHODS[animation.methodKey]:null;
+  if(!animation.running||!method||animation.stepIndex>=method.edges.length){travellerEl.setAttribute('visibility','hidden');return}
+  const step=method.edges[animation.stepIndex],A=projectedByRow[step.from]?.proj,B=projectedByRow[step.to]?.proj;
+  if(!A||!B){travellerEl.setAttribute('visibility','hidden');return}
+  const t=Math.max(0,Math.min(1,animation.progress)),x=A.x+(B.x-A.x)*t,y=A.y+(B.y-A.y)*t,pulse=.5+.5*Math.sin(animation.flashPhase);
+  travellerEl.setAttribute('visibility','visible');travellerEl.setAttribute('cx',x);travellerEl.setAttribute('cy',y);
+  travellerEl.setAttribute('r',String(4.5+2.4*pulse));travellerEl.setAttribute('fill-opacity',String(.58+.42*pulse));
+}
+
+// Rotation
+let dragging=false,lastX=0,lastY=0;
+svg.addEventListener('pointerdown',e=>{dragging=true;svg.classList.add('dragging');lastX=e.clientX;lastY=e.clientY;svg.setPointerCapture(e.pointerId)});
+svg.addEventListener('pointermove',e=>{if(!dragging)return;const dx=e.clientX-lastX,dy=e.clientY-lastY;lastX=e.clientX;lastY=e.clientY;rotY+=dx*.008;rotX+=dy*.008;queueRender()});
+function stopDrag(e){dragging=false;svg.classList.remove('dragging');try{svg.releasePointerCapture(e.pointerId)}catch(_){}}
+svg.addEventListener('pointerup',stopDrag);svg.addEventListener('pointercancel',stopDrag);svg.addEventListener('pointerleave',e=>{if(dragging&&e.buttons===0)stopDrag(e)});
+
+// Zoom
+svg.addEventListener('wheel',e=>{e.preventDefault();zoomBy(Math.exp(-e.deltaY*.0015))},{passive:false});
+window.addEventListener('keydown',e=>{
+  const tag=e.target?.tagName?.toLowerCase?.()||'';if(['input','textarea','select'].includes(tag))return;
+  if(e.key==='+'||e.key==='='||e.code==='NumpadAdd'){e.preventDefault();zoomBy(1.12)}
+  else if(e.key==='-'||e.key==='_'||e.code==='NumpadSubtract'){e.preventDefault();zoomBy(1/1.12)}
+  else if(e.key==='0'||e.code==='Numpad0'){e.preventDefault();setZoom(1)}
+});
+showFacesBox.addEventListener('change',queueRender);showLabelsBox.addEventListener('change',queueRender);showDiagonalsBox.addEventListener('change',queueRender);
+
+const btnReset=document.getElementById('btnReset'),btnClear=document.getElementById('btnClear'),btnHunt=document.getElementById('btnHunt'),btnCourse=document.getElementById('btnCourse'),btnExtent=document.getElementById('btnExtent');
+const speedSlider=document.getElementById('speed'),speedValue=document.getElementById('speedValue');
+const methodButtons={hunt:btnHunt,course:btnCourse,extent:btnExtent};
+function updateSpeedLabel(){speedValue.value=`${animation.speed.toFixed(1)} changes/s`;speedValue.textContent=speedValue.value}
+speedSlider.addEventListener('input',()=>{animation.speed=Number(speedSlider.value);updateSpeedLabel()});
+
+function stopAnimation({clearVisited=false}={}){
+  animation.running=false;animation.lastTime=null;if(animation.rafId!==null){cancelAnimationFrame(animation.rafId);animation.rafId=null}
+  Object.values(methodButtons).forEach(b=>b.classList.remove('active'));if(clearVisited)animation.visited.clear();queueRender();
+}
+function animationFrame(now){
+  if(!animation.running||!animation.methodKey)return;
+  const method=METHODS[animation.methodKey];if(animation.lastTime===null)animation.lastTime=now;
+  const dt=Math.min(.1,(now-animation.lastTime)/1000);animation.lastTime=now;animation.flashPhase+=dt*14;animation.progress+=dt*animation.speed;
+  while(animation.progress>=1&&animation.running){
+    animation.progress-=1;const finished=method.edges[animation.stepIndex];markVisited(finished.to);animation.stepIndex++;
+    if(animation.stepIndex>=method.edges.length){
+      animation.running=false;animation.progress=0;animation.lastTime=null;animation.rafId=null;Object.values(methodButtons).forEach(b=>b.classList.remove('active'));
+      methodInfo.textContent=`${method.name} complete: ${method.edges.length} changes, ${method.rows.length} distinct rows visited, back to rounds.`;updateTravellerVisual();return;
+    }
+  }
+  const step=method.edges[animation.stepIndex];let extra='';
+  if(step.call)extra=` Lead ${step.lead}: ${step.call==='B'?'Bob':step.call==='S'?'Single':'Plain'} lead end.`;
+  else if(step.lead)extra=` Lead ${step.lead}, change ${step.changeInLead}.`;
+  methodInfo.textContent=`${method.name}: change ${animation.stepIndex+1} of ${method.edges.length}, ${step.from} → ${step.to} by ${MOVE_INFO[step.move].label}.${extra}`;
+  updateTravellerVisual();animation.rafId=requestAnimationFrame(animationFrame);
+}
+function playMethod(key){
+  stopAnimation({clearVisited:true});animation.methodKey=key;animation.stepIndex=0;animation.progress=0;animation.flashPhase=0;markVisited('123456');animation.running=true;animation.lastTime=null;
+  methodButtons[key].classList.add('active');methodInfo.textContent=`${METHODS[key].name} starting from rounds (123456).`;queueRender();animation.rafId=requestAnimationFrame(animationFrame);
+}
+btnHunt.addEventListener('click',()=>playMethod('hunt'));btnCourse.addEventListener('click',()=>playMethod('course'));btnExtent.addEventListener('click',()=>playMethod('extent'));
+btnClear.addEventListener('click',()=>{stopAnimation({clearVisited:true});animation.methodKey=null;animation.stepIndex=0;animation.progress=0;methodInfo.textContent='Choose a method to start.'});
+btnReset.addEventListener('click',()=>{rotX=-.48;rotY=.64;zoom=.95;queueRender()});
+
+updateSpeedLabel();renderScene();
+</script>
+</body>
+</html>

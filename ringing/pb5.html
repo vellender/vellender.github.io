@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bellringing on 5 bells: 120-row permutohedron</title>
+  <style>
+    :root {
+      --bg: #f7f7fb;
+      --ink: #111827;
+      --muted: #6b7280;
+      --panel: #ffffff;
+      --border: #d1d5db;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+    }
+    .wrap {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 1rem;
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      gap: 1rem;
+    }
+    .panel, .viewer {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .panel { padding: 1rem; }
+    .viewer { overflow: hidden; min-height: 900px; position: relative; }
+    h1 { margin: 0 0 .5rem; font-size: 1.5rem; }
+    h2 { margin: 1rem 0 .45rem; font-size: 1rem; }
+    p { font-size: .93rem; line-height: 1.45; }
+    code {
+      background: #f3f4f6;
+      padding: .08rem .24rem;
+      border-radius: 4px;
+    }
+    .controls { display: flex; flex-wrap: wrap; gap: .5rem; margin: .7rem 0; }
+    button {
+      padding: .55rem .75rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: white;
+      cursor: pointer;
+      font-size: .9rem;
+    }
+    button:hover { background: #f3f4f6; }
+    button.active {
+      border-color: #111827;
+      box-shadow: inset 0 0 0 1px #111827;
+      background: #eef2ff;
+    }
+    .speed-control { margin: .9rem 0 .2rem; }
+    .speed-control label {
+      display: flex;
+      justify-content: space-between;
+      gap: .75rem;
+      align-items: baseline;
+      font-size: .93rem;
+      font-weight: 600;
+    }
+    .speed-control output { color: var(--muted); font-weight: 500; font-variant-numeric: tabular-nums; }
+    .speed-control input[type="range"] { width: 100%; margin-top: .4rem; }
+    .legend-row {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      align-items: center;
+      gap: .5rem;
+      margin: .28rem 0;
+      font-size: .88rem;
+    }
+    .swatch { height: 4px; border-radius: 999px; }
+    .small, .status { color: var(--muted); font-size: .84rem; line-height: 1.4; }
+    .toggles { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: .5rem; }
+    .toggles label { font-size: .88rem; display: flex; gap: .35rem; align-items: center; }
+    svg {
+      width: 100%;
+      height: 900px;
+      display: block;
+      background: linear-gradient(180deg, #fff 0%, #fbfbfe 100%);
+      user-select: none;
+      touch-action: none;
+      cursor: grab;
+    }
+    svg.dragging { cursor: grabbing; }
+    @media (max-width: 1050px) {
+      .wrap { grid-template-columns: 1fr; }
+      .viewer, svg { min-height: 72vh; height: 72vh; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <aside class="panel">
+    <h1>Bellringing on 5 bells</h1>
+    <p>
+      The 120 rows are the vertices of the four-dimensional <strong>permutohedron</strong>, shown here by a
+      fixed projection into 3D.  The mouse rotates that 3D projection.
+    </p>
+    <p>
+      Labelling each geometric vertex by the <em>inverse</em> permutation makes a bellringing change act on
+      adjacent <strong>places</strong>.  The four single swaps are permutohedron edges; the three possible
+      simultaneous disjoint swaps are diagonals of square 2-faces.
+    </p>
+
+    <h2>Animation</h2>
+    <div class="controls">
+      <button id="btnReset">Reset view</button>
+      <button id="btnClear">Clear animation</button>
+      <button id="btnHunt">Plain Hunt</button>
+      <button id="btnCourse">Plain Bob Doubles (plain course)</button>
+      <button id="btnExtent">Plain Bob Doubles (120)</button>
+    </div>
+    <div class="speed-control">
+      <label for="speed"><span>Animation speed</span><output id="speedValue">4.0 changes/s</output></label>
+      <input id="speed" type="range" min="0.5" max="20" step="0.5" value="4" />
+    </div>
+    <div class="toggles">
+      <label><input id="showFaces" type="checkbox" checked /> show faces</label>
+      <label><input id="showLabels" type="checkbox" checked /> show row labels</label>
+    </div>
+    <p class="small">
+      Drag to rotate. Mouse wheel or <code>+</code>/<code>−</code> zooms; <code>0</code> restores 100% zoom.
+      You can rotate and zoom while an animation runs.
+    </p>
+
+    <h2>Seven legal changes</h2>
+    <div class="legend-row"><div class="swatch" style="background:#2563eb"></div><div><code>(12)</code></div></div>
+    <div class="legend-row"><div class="swatch" style="background:#059669"></div><div><code>(23)</code></div></div>
+    <div class="legend-row"><div class="swatch" style="background:#d97706"></div><div><code>(34)</code></div></div>
+    <div class="legend-row"><div class="swatch" style="background:#7c3aed"></div><div><code>(45)</code></div></div>
+    <div class="legend-row"><div class="swatch" style="background:#dc2626"></div><div><code>(12)(34)</code> — square-face diagonal</div></div>
+    <div class="legend-row"><div class="swatch" style="background:#0891b2"></div><div><code>(12)(45)</code> — square-face diagonal</div></div>
+    <div class="legend-row"><div class="swatch" style="background:#be185d"></div><div><code>(23)(45)</code> — square-face diagonal</div></div>
+
+    <h2>Methods</h2>
+    <p class="small">
+      Plain Hunt alternates <code>(12)(34)</code> and <code>(23)(45)</code> and returns to rounds after 10 changes.
+      A plain lead of Plain Bob Doubles has the same hunting changes but ends with <code>(34)</code> instead of
+      the final <code>(23)(45)</code>.  The plain course is 4 leads = 40 changes.
+    </p>
+    <p class="small">
+      The 120 shown here uses twelve leads with calls
+      <code>P P P B &nbsp; P P P B &nbsp; P P P B</code>;
+      at a bob the lead-end change is <code>(23)</code> instead of <code>(34)</code>.
+    </p>
+    <div id="methodInfo" class="status">Choose a method to start.</div>
+  </aside>
+
+  <main class="viewer">
+    <svg id="svg" viewBox="0 0 1100 900" aria-label="Rotatable 3D projection of the five-bell permutohedron"></svg>
+  </main>
+</div>
+
+<script>
+const svg = document.getElementById('svg');
+const methodInfo = document.getElementById('methodInfo');
+const showFacesBox = document.getElementById('showFaces');
+const showLabelsBox = document.getElementById('showLabels');
+
+const MOVE_INFO = {
+  '12':    { label: '(12)',       color: '#2563eb', swaps: [[0,1]], kind: 'edge' },
+  '23':    { label: '(23)',       color: '#059669', swaps: [[1,2]], kind: 'edge' },
+  '34':    { label: '(34)',       color: '#d97706', swaps: [[2,3]], kind: 'edge' },
+  '45':    { label: '(45)',       color: '#7c3aed', swaps: [[3,4]], kind: 'edge' },
+  '12_34': { label: '(12)(34)',   color: '#dc2626', swaps: [[0,1],[2,3]], kind: 'diagonal' },
+  '12_45': { label: '(12)(45)',   color: '#0891b2', swaps: [[0,1],[3,4]], kind: 'diagonal' },
+  '23_45': { label: '(23)(45)',   color: '#be185d', swaps: [[1,2],[3,4]], kind: 'diagonal' }
+};
+
+const SINGLE_MOVES = ['12','23','34','45'];
+const DOUBLE_MOVES = ['12_34','12_45','23_45'];
+const ALL_MOVES = [...SINGLE_MOVES, ...DOUBLE_MOVES];
+
+function permutations(arr) {
+  const result = [];
+  function backtrack(i) {
+    if (i === arr.length) { result.push(arr.join('')); return; }
+    for (let j = i; j < arr.length; j++) {
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+      backtrack(i + 1);
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+  }
+  backtrack(0);
+  result.sort();
+  return result;
+}
+
+const rows = permutations(['1','2','3','4','5']);
+const rowSet = new Set(rows);
+
+function applyMove(row, move) {
+  const a = row.split('');
+  for (const [i,j] of MOVE_INFO[move].swaps) [a[i],a[j]] = [a[j],a[i]];
+  return a.join('');
+}
+
+function inverseRow(row) {
+  let inv = '';
+  for (let bell = 1; bell <= 5; bell++) inv += String(row.indexOf(String(bell)) + 1);
+  return inv;
+}
+
+// Orthonormal basis for the 4D hyperplane x1+...+x5=0 in R^5.
+const HYPERPLANE_BASIS = [
+  [ 1/Math.sqrt(2),  -1/Math.sqrt(2),   0,                0,                 0 ],
+  [ 1/Math.sqrt(6),   1/Math.sqrt(6),  -2/Math.sqrt(6),   0,                 0 ],
+  [ 1/Math.sqrt(12),  1/Math.sqrt(12),  1/Math.sqrt(12), -3/Math.sqrt(12),   0 ],
+  [ 1/Math.sqrt(20),  1/Math.sqrt(20),  1/Math.sqrt(20),  1/Math.sqrt(20),  -4/Math.sqrt(20) ]
+];
+
+// A generic orthogonal projection from that R^4 coordinate system to R^3.
+// It was chosen to keep the 120 projected vertices well separated.
+const PROJECTION_4_TO_3 = [
+  [ 0.94493049,  0.19639733,  0.21190966,  0.15371648 ],
+  [-0.24917775,  0.21190966,  0.94411952, -0.04053497 ],
+  [-0.18075026,  0.15371648, -0.04053497,  0.97059647 ]
+];
+
+function rowToPoint(row) {
+  // Inverse labelling is the crucial convention: adjacent place swaps in ringing
+  // become adjacent-value swaps in the geometric permutohedron.
+  const gp = inverseRow(row);
+  const p5 = gp.split('').map(Number).map(v => v - 3);
+  const q4 = HYPERPLANE_BASIS.map(b => p5.reduce((s,x,i) => s + x*b[i], 0));
+  const q3 = PROJECTION_4_TO_3.map(b => q4.reduce((s,x,i) => s + x*b[i], 0));
+  const scale = 105;
+  return { x: q3[0]*scale, y: q3[1]*scale, z: q3[2]*scale };
+}
+
+const nodes = rows.map(row => ({ row, pos: rowToPoint(row) }));
+
+function canonicalFaceKey(faceRows) { return [...faceRows].sort().join('|'); }
+
+// All 150 two-dimensional faces of the 4D permutohedron:
+// 90 squares from commuting adjacent swaps and 60 hexagons from braid relations.
+function buildFaces() {
+  const faces = [];
+  const seen = new Set();
+  const squarePairs = [['12','34'], ['12','45'], ['23','45']];
+  const hexPairs = [['12','23'], ['23','34'], ['34','45']];
+
+  for (const r of rows) {
+    for (const [a,b] of squarePairs) {
+      const r1 = applyMove(r,a);
+      const r2 = applyMove(r1,b);
+      const r3 = applyMove(r,b);
+      const face = [r,r1,r2,r3];
+      const key = canonicalFaceKey(face);
+      if (!seen.has(key)) { seen.add(key); faces.push({ rows: face, sides: 4 }); }
+    }
+    for (const [a,b] of hexPairs) {
+      const face = [r];
+      let cur = r;
+      const seq = [a,b,a,b,a];
+      for (const m of seq) { cur = applyMove(cur,m); face.push(cur); }
+      const key = canonicalFaceKey(face);
+      if (!seen.has(key)) { seen.add(key); faces.push({ rows: face, sides: 6 }); }
+    }
+  }
+  return faces;
+}
+const FACES = buildFaces();
+
+// Every legal ringing change, stored as one undirected graph edge/chord.
+const edges = [];
+const seenEdges = new Set();
+for (const row of rows) {
+  for (const move of ALL_MOVES) {
+    const other = applyMove(row, move);
+    const [a,b] = [row,other].sort();
+    const key = `${a}|${b}`;
+    if (!seenEdges.has(key)) {
+      seenEdges.add(key);
+      edges.push({ a,b,move,key });
+    }
+  }
+}
+
+function edgeStep(from,to,move,meta={}) {
+  return { from,to,move,key:[from,to].sort().join('|'), ...meta };
+}
+
+function methodFromPattern(name, pattern, start='12345', maxSteps=500) {
+  const distinct = [start];
+  const seen = new Set([start]);
+  const edges = [];
+  let row = start;
+  for (let i=0; i<maxSteps; i++) {
+    const move = pattern[i % pattern.length];
+    const next = applyMove(row, move);
+    edges.push(edgeStep(row,next,move));
+    row = next;
+    if (row === start) return { name, rows: distinct, edges, closed: true };
+    if (seen.has(row)) return { name, rows: distinct, edges, closed: false };
+    seen.add(row); distinct.push(row);
+  }
+  return { name, rows: distinct, edges, closed: false };
+}
+
+const HUNT_A = '12_34';  // place 5
+const HUNT_B = '23_45';  // place 1
+const PLAIN_END = '34';  // places 1,2,5
+const BOB_END = '23';    // places 1,4,5
+const LEAD_PREFIX = [HUNT_A,HUNT_B,HUNT_A,HUNT_B,HUNT_A,HUNT_B,HUNT_A,HUNT_B,HUNT_A];
+
+function plainBobDoubles(name, callSequence) {
+  const distinct = ['12345'];
+  const seen = new Set(distinct);
+  const edgeSteps = [];
+  let row = '12345';
+
+  callSequence.forEach((call, leadIndex) => {
+    LEAD_PREFIX.forEach((move, changeInLead) => {
+      const next = applyMove(row, move);
+      edgeSteps.push(edgeStep(row,next,move,{lead:leadIndex+1,changeInLead:changeInLead+1,call:null}));
+      row = next;
+      if (row !== '12345' && !seen.has(row)) { seen.add(row); distinct.push(row); }
+    });
+    const move = call === 'B' ? BOB_END : PLAIN_END;
+    const next = applyMove(row, move);
+    edgeSteps.push(edgeStep(row,next,move,{lead:leadIndex+1,changeInLead:10,call}));
+    row = next;
+    if (row !== '12345' && !seen.has(row)) { seen.add(row); distinct.push(row); }
+  });
+
+  return { name, rows: distinct, edges: edgeSteps, closed: row === '12345', calls: callSequence.join(' ') };
+}
+
+const METHODS = {
+  hunt: methodFromPattern('Plain Hunt', [HUNT_A,HUNT_B]),
+  course: plainBobDoubles('Plain Bob Doubles (plain course)', ['P','P','P','P']),
+  extent: plainBobDoubles('Plain Bob Doubles (120)', ['P','P','P','B','P','P','P','B','P','P','P','B'])
+};
+
+// Sanity checks: these should be 10, 40 and 120 true rows respectively.
+console.assert(METHODS.hunt.closed && METHODS.hunt.edges.length === 10 && METHODS.hunt.rows.length === 10, 'Plain Hunt validation failed');
+console.assert(METHODS.course.closed && METHODS.course.edges.length === 40 && METHODS.course.rows.length === 40, 'Plain course validation failed');
+console.assert(METHODS.extent.closed && METHODS.extent.edges.length === 120 && METHODS.extent.rows.length === 120, '120 validation failed');
+console.assert(FACES.filter(f=>f.sides===4).length === 90 && FACES.filter(f=>f.sides===6).length === 60, 'Face count validation failed');
+console.assert(edges.length === 420, 'Legal move count validation failed');
+
+const animation = {
+  running: false, methodKey: null, stepIndex: 0, progress: 0,
+  speed: 4, lastTime: null, visited: new Set(), rafId: null, flashPhase: 0
+};
+
+let rotX = -0.53;
+let rotY = 0.68;
+let zoom = 0.92;
+const MIN_ZOOM = 0.28;
+const MAX_ZOOM = 4.0;
+const centerX = 550;
+const centerY = 460;
+const camera = 1050;
+
+function rotatePoint({x,y,z}) {
+  let x1=x, y1=y, z1=z;
+  const cy=Math.cos(rotY), sy=Math.sin(rotY);
+  let x2=x1*cy+z1*sy, z2=-x1*sy+z1*cy;
+  x1=x2; z1=z2;
+  const cx=Math.cos(rotX), sx=Math.sin(rotX);
+  let y2=y1*cx-z1*sx, z3=y1*sx+z1*cx;
+  return {x:x1,y:y2,z:z3};
+}
+function project(p) {
+  const r=rotatePoint(p);
+  const perspective=camera/(camera-r.z);
+  const s=perspective*zoom;
+  return {x:centerX+r.x*s,y:centerY-r.y*s,z:r.z,scale:s};
+}
+function setZoom(v) { zoom=Math.max(MIN_ZOOM,Math.min(MAX_ZOOM,v)); render(); }
+function zoomBy(f) { setZoom(zoom*f); }
+function el(name,attrs={},text=null) {
+  const e=document.createElementNS('http://www.w3.org/2000/svg',name);
+  for (const [k,v] of Object.entries(attrs)) e.setAttribute(k,v);
+  if (text!==null) e.textContent=text;
+  return e;
+}
+
+function render() {
+  svg.innerHTML='';
+  const projectedNodes=nodes.map(n=>({...n,proj:project(n.pos)}));
+  const byRow=Object.fromEntries(projectedNodes.map(n=>[n.row,n]));
+  const objects=[];
+
+  if (showFacesBox.checked) {
+    for (const face of FACES) {
+      const verts=face.rows.map(r=>byRow[r].proj);
+      const z=verts.reduce((s,p)=>s+p.z,0)/verts.length;
+      objects.push({type:'face',z,verts,sides:face.sides});
+    }
+  }
+  for (const e of edges) {
+    const A=byRow[e.a].proj, B=byRow[e.b].proj;
+    objects.push({type:'edge',z:(A.z+B.z)/2,A,B,edge:e});
+  }
+  for (const n of projectedNodes) objects.push({type:'node',z:n.proj.z,node:n});
+  objects.sort((a,b)=>a.z-b.z);
+
+  svg.appendChild(el('text',{x:550,y:32,'text-anchor':'middle','font-size':25,'font-weight':'600',fill:'#111827'},'All 120 rows on 5 bells'));
+  svg.appendChild(el('text',{x:550,y:56,'text-anchor':'middle','font-size':14,fill:'#6b7280'},'3D projection of the 4D permutohedron'));
+
+  for (const obj of objects) {
+    if (obj.type==='face') {
+      const points=obj.verts.map(p=>`${p.x},${p.y}`).join(' ');
+      const front=obj.z>0;
+      const fill=obj.sides===4 ? '#93c5fd' : '#c4b5fd';
+      const opacity=obj.sides===4 ? (front?0.030:0.010) : (front?0.015:0.005);
+      svg.appendChild(el('polygon',{
+        points, fill, 'fill-opacity':opacity,
+        stroke:'#64748b','stroke-opacity':front?0.055:0.025,'stroke-width':0.45,'stroke-linejoin':'round'
+      }));
+    } else if (obj.type==='edge') {
+      const {A,B,edge}=obj;
+      const info=MOVE_INFO[edge.move];
+      const diagonal=info.kind==='diagonal';
+      svg.appendChild(el('line',{
+        x1:A.x,y1:A.y,x2:B.x,y2:B.y,
+        stroke:info.color,
+        'stroke-width':diagonal?1.0:1.25,
+        'stroke-linecap':'round',
+        opacity:diagonal?0.35:0.58
+      }));
+    } else {
+      const {node}=obj, p=node.proj;
+      const visited=animation.visited.has(node.row);
+      const r=Math.max(3.3,Math.min(7.0,5.0*p.scale));
+      svg.appendChild(el('circle',{
+        cx:p.x,cy:p.y,r,
+        fill:visited?'#111827':'#ffffff',
+        stroke:'#111827','stroke-width':0.9
+      }));
+
+      if (showLabelsBox.checked) {
+        const dx=p.x-centerX, dy=p.y-centerY, len=Math.hypot(dx,dy)||1;
+        const offset=6.5 + r;
+        const lx=p.x+offset*dx/len, ly=p.y+offset*dy/len;
+        svg.appendChild(el('text',{
+          x:lx,y:ly,'font-size':8.5,
+          'text-anchor':dx>=0?'start':'end',
+          'dominant-baseline':'middle',fill:'#111827',
+          'paint-order':'stroke','stroke':'#ffffff','stroke-width':2.2,'stroke-opacity':0.88
+        },node.row));
+      }
+    }
+  }
+
+  // Traveller goes last so it is always visible.
+  const method=animation.methodKey?METHODS[animation.methodKey]:null;
+  if (animation.running && method && animation.stepIndex<method.edges.length) {
+    const step=method.edges[animation.stepIndex];
+    const A=byRow[step.from].proj, B=byRow[step.to].proj;
+    const t=Math.max(0,Math.min(1,animation.progress));
+    const x=A.x+(B.x-A.x)*t, y=A.y+(B.y-A.y)*t;
+    const pulse=.5+.5*Math.sin(animation.flashPhase);
+    svg.appendChild(el('circle',{
+      cx:x,cy:y,r:5.5+2.5*pulse,
+      fill:'#facc15','fill-opacity':.6+.4*pulse,
+      stroke:'#111827','stroke-width':1.35
+    }));
+  }
+}
+
+// Rotation
+let dragging=false,lastX=0,lastY=0;
+svg.addEventListener('pointerdown',e=>{
+  dragging=true;svg.classList.add('dragging');lastX=e.clientX;lastY=e.clientY;svg.setPointerCapture(e.pointerId);
+});
+svg.addEventListener('pointermove',e=>{
+  if(!dragging)return;
+  const dx=e.clientX-lastX,dy=e.clientY-lastY;lastX=e.clientX;lastY=e.clientY;
+  rotY+=dx*.009;rotX+=dy*.009;render();
+});
+function stopDrag(e){dragging=false;svg.classList.remove('dragging');try{svg.releasePointerCapture(e.pointerId)}catch(_){}}
+svg.addEventListener('pointerup',stopDrag);svg.addEventListener('pointercancel',stopDrag);
+svg.addEventListener('pointerleave',e=>{if(dragging&&e.buttons===0)stopDrag(e)});
+
+// Zoom
+svg.addEventListener('wheel',e=>{e.preventDefault();zoomBy(Math.exp(-e.deltaY*.0015));},{passive:false});
+window.addEventListener('keydown',e=>{
+  const tag=e.target?.tagName?.toLowerCase?.()||'';
+  if(['input','textarea','select'].includes(tag))return;
+  if(e.key==='+'||e.key==='='||e.code==='NumpadAdd'){e.preventDefault();zoomBy(1.12)}
+  else if(e.key==='-'||e.key==='_'||e.code==='NumpadSubtract'){e.preventDefault();zoomBy(1/1.12)}
+  else if(e.key==='0'||e.code==='Numpad0'){e.preventDefault();setZoom(1)}
+});
+
+showFacesBox.addEventListener('change',render);
+showLabelsBox.addEventListener('change',render);
+
+const btnReset=document.getElementById('btnReset');
+const btnClear=document.getElementById('btnClear');
+const btnHunt=document.getElementById('btnHunt');
+const btnCourse=document.getElementById('btnCourse');
+const btnExtent=document.getElementById('btnExtent');
+const speedSlider=document.getElementById('speed');
+const speedValue=document.getElementById('speedValue');
+const methodButtons={hunt:btnHunt,course:btnCourse,extent:btnExtent};
+
+function updateSpeedLabel(){speedValue.value=`${animation.speed.toFixed(1)} changes/s`;speedValue.textContent=speedValue.value}
+speedSlider.addEventListener('input',()=>{animation.speed=Number(speedSlider.value);updateSpeedLabel()});
+
+function stopAnimation({clearVisited=false}={}){
+  animation.running=false;animation.lastTime=null;
+  if(animation.rafId!==null){cancelAnimationFrame(animation.rafId);animation.rafId=null}
+  Object.values(methodButtons).forEach(b=>b.classList.remove('active'));
+  if(clearVisited)animation.visited.clear();
+  render();
+}
+
+function animationFrame(now){
+  if(!animation.running||!animation.methodKey)return;
+  const method=METHODS[animation.methodKey];
+  if(animation.lastTime===null)animation.lastTime=now;
+  const dt=Math.min(.1,(now-animation.lastTime)/1000);animation.lastTime=now;
+  animation.flashPhase+=dt*14;animation.progress+=dt*animation.speed;
+
+  while(animation.progress>=1&&animation.running){
+    animation.progress-=1;
+    const finished=method.edges[animation.stepIndex];
+    animation.visited.add(finished.to);
+    animation.stepIndex++;
+    if(animation.stepIndex>=method.edges.length){
+      animation.running=false;animation.progress=0;animation.lastTime=null;animation.rafId=null;
+      Object.values(methodButtons).forEach(b=>b.classList.remove('active'));
+      methodInfo.textContent=`${method.name} complete: ${method.edges.length} changes, ${method.rows.length} distinct rows visited, back to rounds.`;
+      render();return;
+    }
+  }
+
+  const step=method.edges[animation.stepIndex];
+  let extra='';
+  if(step.call) extra=` Lead ${step.lead}: ${step.call==='B'?'Bob':'Plain'} lead end.`;
+  else if(step.lead) extra=` Lead ${step.lead}, change ${step.changeInLead}.`;
+  methodInfo.textContent=`${method.name}: change ${animation.stepIndex+1} of ${method.edges.length}, ${step.from} → ${step.to} by ${MOVE_INFO[step.move].label}.${extra}`;
+  render();animation.rafId=requestAnimationFrame(animationFrame);
+}
+
+function playMethod(key){
+  stopAnimation({clearVisited:true});
+  animation.methodKey=key;animation.stepIndex=0;animation.progress=0;animation.flashPhase=0;
+  animation.visited.add('12345');animation.running=true;animation.lastTime=null;
+  methodButtons[key].classList.add('active');
+  methodInfo.textContent=`${METHODS[key].name} starting from rounds (12345).`;
+  render();animation.rafId=requestAnimationFrame(animationFrame);
+}
+
+btnHunt.addEventListener('click',()=>playMethod('hunt'));
+btnCourse.addEventListener('click',()=>playMethod('course'));
+btnExtent.addEventListener('click',()=>playMethod('extent'));
+btnClear.addEventListener('click',()=>{
+  stopAnimation({clearVisited:true});animation.methodKey=null;animation.stepIndex=0;animation.progress=0;
+  methodInfo.textContent='Choose a method to start.';
+});
+btnReset.addEventListener('click',()=>{rotX=-.53;rotY=.68;zoom=.92;render()});
+
+updateSpeedLabel();
+render();
+</script>
+</body>
+</html>

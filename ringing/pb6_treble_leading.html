@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Plain Bob Minor lead-end graph</title>
+<style>
+  :root { --bg:#f6f7fb; --panel:#fff; --ink:#111827; --muted:#6b7280; --border:#d1d5db; --plain:#2563eb; --bob:#dc2626; --single:#7c3aed; --blocked:#9ca3af; }
+  *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+  .wrap{max-width:1520px;margin:0 auto;padding:1rem;display:grid;grid-template-columns:350px 1fr;gap:1rem}
+  .panel,.viewer{background:var(--panel);border:1px solid var(--border);border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+  .panel{padding:1rem}.viewer{overflow:hidden;min-height:880px;position:relative}
+  h1{margin:0 0 .45rem;font-size:1.45rem}h2{margin:1rem 0 .45rem;font-size:1rem}p{margin:.45rem 0;line-height:1.42;font-size:.92rem}
+  code{background:#f3f4f6;padding:.08rem .24rem;border-radius:4px}.controls{display:flex;flex-wrap:wrap;gap:.5rem;margin:.6rem 0}
+  button{padding:.53rem .72rem;border-radius:8px;border:1px solid var(--border);background:#fff;cursor:pointer;font-size:.89rem}button:hover{background:#f3f4f6}
+  button.active{border-color:#111827;box-shadow:inset 0 0 0 1px #111827;background:#eef2ff}.legend-row{display:grid;grid-template-columns:28px 1fr;align-items:center;gap:.5rem;margin:.32rem 0;font-size:.89rem}.swatch{height:4px;border-radius:999px}
+  .dot-swatch{width:15px;height:15px;border-radius:50%;border:1px solid #111827;justify-self:center}.checkrow{display:flex;align-items:center;gap:.5rem;margin:.45rem 0;font-size:.91rem}
+  .speedbox{margin:.65rem 0}.speedline{display:flex;align-items:center;gap:.6rem}.speedline input[type=range]{flex:1}output{min-width:78px;text-align:right;font-variant-numeric:tabular-nums;font-size:.87rem}
+  .small{color:var(--muted);font-size:.83rem}.call-note{font-size:.82rem;color:var(--muted)}#methodInfo{margin-top:.7rem;padding:.65rem .7rem;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;min-height:3.4rem;font-size:.86rem;line-height:1.38}
+  svg{width:100%;height:880px;display:block;background:linear-gradient(180deg,#fff 0%,#fbfbfe 100%);user-select:none;touch-action:none;cursor:grab}svg.dragging{cursor:grabbing}
+  @media(max-width:1000px){.wrap{grid-template-columns:1fr}.viewer,svg{height:72vh;min-height:640px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<aside class="panel">
+  <h1>Plain Bob Minor: lead ends</h1>
+  <p>Each coloured line represents a complete 12-change lead. Initially only Plain and Bob transitions are shown; Singles can be added.</p>
+  <p class="small">With only Plains and Bobs the 120 possible lead-end rows split into two 60-vertex components. Singles provide links between them.</p>
+
+  <h2>Animate</h2>
+  <div class="controls">
+    <button id="btnCourse">Plain course</button>
+    <button id="btn360">360: WHW ×3</button>
+    <button id="btn720">720: (WHW WHW WHWsH) ×2</button>
+  </div>
+  <div class="controls"><button id="btnClear">Clear animation</button><button id="btnReset">Reset view</button></div>
+  <div class="speedbox"><div class="speedline"><label for="speed">Speed</label><input id="speed" type="range" min="0.2" max="10" value="1.5" step="0.1" /><output id="speedValue">1.5 leads/s</output></div></div>
+
+  <h2>Graph</h2>
+  <label class="checkrow"><input id="showSingles" type="checkbox" /> Show Singles</label>
+  <label class="checkrow"><input id="showLabels" type="checkbox" /> Show all lead-end labels</label>
+  <label class="checkrow"><input id="pruneBlocked" type="checkbox" checked /> Remove edges to grey vertices</label>
+  <p class="small">Hover a vertex to see its row. Drag to rotate. Mouse wheel or <code>+</code>/<code>−</code> zooms; <code>0</code> restores 100% zoom.</p>
+
+  <h2>What the vertex colours mean</h2>
+  <div class="legend-row"><div class="dot-swatch" style="background:#fff"></div><div>Available lead-end row</div></div>
+  <div class="legend-row"><div class="dot-swatch" style="background:#111827"></div><div>Visited as a lead end</div></div>
+  <div class="legend-row"><div class="dot-swatch" style="background:#9ca3af"></div><div>Already rung inside a lead, immediately before a lead end</div></div>
+  <p class="small">A grey row can no longer be used later as a lead end without making the touch false. With pruning switched on, its incident lead-transition edges disappear.</p>
+
+  <h2>Lead transitions</h2>
+  <div class="legend-row"><div class="swatch" style="background:var(--plain)"></div><div>Plain lead end (<code>12</code>)</div></div>
+  <div class="legend-row"><div class="swatch" style="background:var(--bob)"></div><div>Bob lead end (<code>14</code>)</div></div>
+  <div class="legend-row"><div class="swatch" style="background:var(--single)"></div><div>Single lead end (<code>1234</code>)</div></div>
+
+  <h2>Compositions</h2>
+  <p class="call-note"><strong>Plain course:</strong> 5 Plain leads = 60 changes.</p>
+  <p class="call-note"><strong>360:</strong> <code>WHW ×3</code> = 30 leads; all calls are Bobs.</p>
+  <p class="call-note"><strong>720:</strong> <code>(WHW WHW WHWsH) ×2</code> = 60 leads; the final call in each block is a Single at Home.</p>
+  <div id="methodInfo">Choose an animation.</div>
+</aside>
+<main class="viewer"><svg id="svg" viewBox="0 0 1180 880" aria-label="Rotatable Plain Bob Minor lead-end graph"></svg></main>
+</div>
+<script>
+const svg=document.getElementById('svg'),methodInfo=document.getElementById('methodInfo');
+const showSinglesBox=document.getElementById('showSingles'),showLabelsBox=document.getElementById('showLabels'),pruneBlockedBox=document.getElementById('pruneBlocked');
+const EDGE_INFO={P:{name:'Plain',color:'#2563eb'},B:{name:'Bob',color:'#dc2626'},S:{name:'Single',color:'#7c3aed'}};
+const LEAD_BODY=['x','16','x','16','x','16','x','16','x','16','x'],LEAD_END={P:'12',B:'14',S:'1234'},CALL_PLACE={W:5,H:6,M:4,B:2,I:3};
+function permutations(arr){const out=[];function rec(i){if(i===arr.length){out.push(arr.join(''));return}for(let j=i;j<arr.length;j++){[arr[i],arr[j]]=[arr[j],arr[i]];rec(i+1);[arr[i],arr[j]]=[arr[j],arr[i]]}}rec(0);out.sort();return out}
+const rows=permutations(['2','3','4','5','6']).map(r=>'1'+r);
+function applyPN(row,pn){const a=row.split(''),fixed=new Set(pn==='x'?[]:pn.split('').map(Number));for(let i=1;i<=a.length;){if(fixed.has(i)){i++;continue}if(i+1>a.length||fixed.has(i+1))throw new Error(`Invalid place notation ${pn}`);[a[i-1],a[i]]=[a[i],a[i-1]];i+=2}return a.join('')}
+function leadRows(start,type){let row=start;const out=[];for(const pn of [...LEAD_BODY,LEAD_END[type]]){row=applyPN(row,pn);out.push(row)}return out}
+function nextLeadEnd(start,type){return leadRows(start,type).at(-1)}
+function tenorPlace(row){return row.indexOf('6')+1}
+
+const BASE_POS={"123456":[0.267241,-0.960195,-0.071289],"123564":[0.064595,-0.876961,0.47484],"123645":[0.612932,-0.714192,0.336408],"124365":[-0.260494,0.752488,0.604094],"124536":[-0.599604,0.292198,0.74456],"124653":[-0.047022,0.322901,0.945032],"125346":[0.468137,0.685818,-0.555875],"125463":[0.807284,0.204903,-0.552651],"125634":[0.81393,0.57246,-0.093087],"126354":[-0.820681,0.216983,-0.528333],"126435":[-0.486108,-0.131735,-0.863912],"126543":[-0.820753,-0.364492,-0.439668],"132465":[-0.612878,0.71416,-0.336405],"132546":[-0.267274,0.960258,0.071532],"132654":[-0.064371,0.876806,-0.474885],"134256":[0.942423,-0.266801,0.199905],"134562":[0.942362,0.314818,0.111456],"134625":[0.935567,-0.05282,-0.348071],"135264":[-0.068844,-0.85023,-0.521007],"135426":[-0.617203,-0.653554,-0.437424],"135642":[-0.282509,-0.420872,-0.861707],"136245":[-0.260674,-0.538113,0.801138],"136452":[-0.599676,-0.057025,0.797869],"136524":[-0.047102,-0.026628,0.998505],"142356":[0.599588,-0.29208,-0.744485],"142563":[0.047025,-0.322774,-0.944983],"142635":[0.260728,-0.75212,-0.604241],"143265":[-0.935365,0.053162,0.348508],"143526":[-0.9423,0.267003,-0.199906],"143652":[-0.942421,-0.314441,-0.111237],"145236":[0.282464,-0.144461,0.94785],"145362":[0.617165,-0.493219,0.612103],"145623":[0.068855,-0.655899,0.750442],"146253":[0.064511,0.978474,0.191934],"146325":[0.612865,0.781973,0.108325],"146532":[0.267223,0.89504,-0.354632],"152364":[-0.814073,-0.572468,0.09325],"152436":[-0.468319,-0.685797,0.555793],"152643":[-0.807105,-0.204638,0.552781],"153246":[0.61699,0.65373,0.437794],"153462":[0.282342,0.420887,0.861973],"153624":[0.068737,0.850262,0.521192],"154263":[-0.068448,0.65605,-0.75063],"154326":[-0.282399,0.144502,-0.948033],"154632":[-0.616938,0.493201,-0.61244],"156234":[0.807262,-0.360566,-0.466709],"156342":[0.46841,-0.820556,-0.326439],"156423":[0.814076,-0.574508,0.081296],"162345":[0.485804,0.131482,0.863927],"162453":[0.820403,0.364325,0.439635],"162534":[0.820557,-0.217267,0.528166],"163254":[0.046899,0.026314,-0.998298],"163425":[0.260558,0.538027,-0.800911],"163542":[0.599482,0.056957,-0.797919],"164235":[-0.612936,-0.781843,-0.108439],"164352":[-0.267225,-0.895172,0.354101],"164523":[-0.064558,-0.978508,-0.192009],"165243":[-0.813873,0.57422,-0.081642],"165324":[-0.807096,0.36011,0.466707],"165432":[-0.46817,0.820423,0.326152]};
+function swapBellLabels23(row){return row.replace(/[23]/g,c=>c==='2'?'3':'2')}
+const nodes=[];for(const[row,v]of Object.entries(BASE_POS)){nodes.push({row,pos:{x:-235+165*v[0],y:210*v[1],z:210*v[2]},component:0});const mate=swapBellLabels23(row);nodes.push({row:mate,pos:{x:235+165*v[0],y:210*v[1],z:210*v[2]},component:1})}
+const byNodeRow=Object.fromEntries(nodes.map(n=>[n.row,n]));console.assert(nodes.length===120&&Object.keys(byNodeRow).length===120,'Node construction failed');
+const graphEdges=[];for(const row of rows)for(const type of['P','B','S'])graphEdges.push({from:row,to:nextLeadEnd(row,type),type});
+
+function buildFromLeadSequence(name,leadSequence,notation){let end='123456';const steps=[],leadEnds=['123456'],seenAll=new Set(['123456']);let trueRows=true;
+  for(let i=0;i<leadSequence.length;i++){const item=typeof leadSequence[i]==='string'?{type:leadSequence[i]}:leadSequence[i],internal=leadRows(end,item.type),penultimate=internal.at(-2),next=internal.at(-1);
+    for(let j=0;j<internal.length;j++){const r=internal[j],isFinal=i===leadSequence.length-1&&j===internal.length-1&&r==='123456';if(seenAll.has(r)&&!isFinal)trueRows=false;seenAll.add(r)}
+    steps.push({from:end,to:next,type:item.type,lead:i+1,callPos:item.callPos||null,penultimate});end=next;if(i<leadSequence.length-1)leadEnds.push(end)}
+  return{name,notation,steps,leadEnds,closed:end==='123456',trueRows,changes:leadSequence.length*12,leadCount:leadSequence.length};}
+function sequenceFromCallEvents(events,expectedLeads){let end='123456',eventIndex=0;const seq=[];for(let leadNo=1;leadNo<=200;leadNo++){let chosen={type:'P'};if(eventIndex<events.length){const ev=events[eventIndex],candidate=nextLeadEnd(end,ev.type);if(tenorPlace(candidate)===CALL_PLACE[ev.pos]){chosen={type:ev.type,callPos:ev.pos};eventIndex++}}seq.push(chosen);end=nextLeadEnd(end,chosen.type);if(eventIndex===events.length&&end==='123456')break}if(seq.length!==expectedLeads||eventIndex!==events.length||end!=='123456')throw new Error('Composition generation failed');return seq}
+function repeat(arr,n){return Array.from({length:n},()=>arr).flat()}
+const courseSeq=Array.from({length:5},()=>({type:'P'}));
+const events360=repeat([{pos:'W',type:'B'},{pos:'H',type:'B'},{pos:'W',type:'B'}],3);
+const block720=[{pos:'W',type:'B'},{pos:'H',type:'B'},{pos:'W',type:'B'},{pos:'W',type:'B'},{pos:'H',type:'B'},{pos:'W',type:'B'},{pos:'W',type:'B'},{pos:'H',type:'B'},{pos:'W',type:'B'},{pos:'H',type:'S'}];
+const events720=repeat(block720,2);
+const METHODS={course:buildFromLeadSequence('Plain Bob Minor: plain course',courseSeq,'5 Plain leads'),half:buildFromLeadSequence('Plain Bob Minor: 360',sequenceFromCallEvents(events360,30),'WHW ×3'),extent:buildFromLeadSequence('Plain Bob Minor: 720',sequenceFromCallEvents(events720,60),'(WHW WHW WHWsH) ×2')};
+console.assert(METHODS.course.closed&&METHODS.course.trueRows&&METHODS.course.changes===60,'Plain course failed');
+console.assert(METHODS.half.closed&&METHODS.half.trueRows&&METHODS.half.changes===360,'360 failed');
+console.assert(METHODS.extent.closed&&METHODS.extent.trueRows&&METHODS.extent.changes===720,'720 failed');
+console.assert(METHODS.course.steps[0].to==='135264'&&METHODS.course.steps[0].penultimate==='132546','Preceding-row example failed');
+
+const animation={running:false,methodKey:null,stepIndex:0,progress:0,speed:1.5,lastTime:null,visited:new Set(),blocked:new Set(),greyedThisStep:false,rafId:null,flashPhase:0};
+let rotX=-.42,rotY=.24,zoom=1;const MIN_ZOOM=.32,MAX_ZOOM=4.2,centerX=590,centerY=455,camera=1100;
+function rotatePoint({x,y,z}){let x1=x,y1=y,z1=z;const cy=Math.cos(rotY),sy=Math.sin(rotY);let x2=x1*cy+z1*sy,z2=-x1*sy+z1*cy;x1=x2;z1=z2;const cx=Math.cos(rotX),sx=Math.sin(rotX);let y2=y1*cx-z1*sx,z3=y1*sx+z1*cx;return{x:x1,y:y2,z:z3}}
+function project(p){const r=rotatePoint(p),pers=camera/(camera-r.z),s=pers*zoom;return{x:centerX+r.x*s,y:centerY-r.y*s,z:r.z,scale:s}}function setZoom(v){zoom=Math.max(MIN_ZOOM,Math.min(MAX_ZOOM,v));render()}function zoomBy(f){setZoom(zoom*f)}
+function el(name,attrs={},text=null){const e=document.createElementNS('http://www.w3.org/2000/svg',name);for(const[k,v]of Object.entries(attrs))e.setAttribute(k,v);if(text!==null)e.textContent=text;return e}
+function render(){svg.innerHTML='';const projected=nodes.map(n=>({...n,proj:project(n.pos)})),pByRow=Object.fromEntries(projected.map(n=>[n.row,n])),objects=[];
+  for(const e of graphEdges){if(e.type==='S'&&!showSinglesBox.checked)continue;if(pruneBlockedBox.checked&&(animation.blocked.has(e.from)||animation.blocked.has(e.to)))continue;const A=pByRow[e.from].proj,B=pByRow[e.to].proj;objects.push({type:'edge',z:(A.z+B.z)/2,A,B,edge:e})}
+  for(const n of projected)objects.push({type:'node',z:n.proj.z,node:n});objects.sort((a,b)=>a.z-b.z);
+  svg.appendChild(el('text',{x:590,y:30,'text-anchor':'middle','font-size':25,'font-weight':'650',fill:'#111827'},'Plain Bob Minor lead-end graph'));
+  svg.appendChild(el('text',{x:590,y:54,'text-anchor':'middle','font-size':14,fill:'#6b7280'},showSinglesBox.checked?'Plain, Bob and Single transitions':'Plain and Bob transitions'));
+  for(const obj of objects){if(obj.type==='edge'){const{A,B,edge}=obj,info=EDGE_INFO[edge.type],isS=edge.type==='S';svg.appendChild(el('line',{x1:A.x,y1:A.y,x2:B.x,y2:B.y,stroke:info.color,'stroke-width':isS?1:(edge.type==='B'?1.35:1.15),'stroke-linecap':'round','stroke-dasharray':isS?'5 4':'none',opacity:isS?.36:(edge.type==='B'?.48:.34)}))}
+    else{const{node}=obj,p=node.proj,isVisited=animation.visited.has(node.row),isBlocked=animation.blocked.has(node.row)&&!isVisited,r=Math.max(3.6,Math.min(7.2,5.1*p.scale));const fill=isVisited?'#111827':isBlocked?'#9ca3af':'#fff';const circle=el('circle',{cx:p.x,cy:p.y,r,fill,stroke:'#111827','stroke-width':.9});circle.appendChild(el('title',{},node.row));svg.appendChild(circle);
+      if(showLabelsBox.checked||node.row==='123456'){const dx=p.x-centerX,dy=p.y-centerY,len=Math.hypot(dx,dy)||1,off=r+6,lx=p.x+off*dx/len,ly=p.y+off*dy/len;svg.appendChild(el('text',{x:lx,y:ly,'font-size':showLabelsBox.checked?8.5:11,'font-weight':node.row==='123456'?'650':'400','text-anchor':dx>=0?'start':'end','dominant-baseline':'middle',fill:'#111827','paint-order':'stroke','stroke':'#fff','stroke-width':2.4,'stroke-opacity':.92},node.row))}}}
+  const method=animation.methodKey?METHODS[animation.methodKey]:null;if(animation.running&&method&&animation.stepIndex<method.steps.length){const step=method.steps[animation.stepIndex],A=pByRow[step.from].proj,B=pByRow[step.to].proj,t=Math.max(0,Math.min(1,animation.progress)),x=A.x+(B.x-A.x)*t,y=A.y+(B.y-A.y)*t,pulse=.5+.5*Math.sin(animation.flashPhase);svg.appendChild(el('circle',{cx:x,cy:y,r:6+2.8*pulse,fill:'#facc15','fill-opacity':.62+.38*pulse,stroke:'#111827','stroke-width':1.45}))}}
+let dragging=false,lastX=0,lastY=0;svg.addEventListener('pointerdown',e=>{dragging=true;svg.classList.add('dragging');lastX=e.clientX;lastY=e.clientY;svg.setPointerCapture(e.pointerId)});svg.addEventListener('pointermove',e=>{if(!dragging)return;const dx=e.clientX-lastX,dy=e.clientY-lastY;lastX=e.clientX;lastY=e.clientY;rotY+=dx*.0085;rotX+=dy*.0085;render()});function stopDrag(e){dragging=false;svg.classList.remove('dragging');try{svg.releasePointerCapture(e.pointerId)}catch(_){}}svg.addEventListener('pointerup',stopDrag);svg.addEventListener('pointercancel',stopDrag);svg.addEventListener('pointerleave',e=>{if(dragging&&e.buttons===0)stopDrag(e)});
+svg.addEventListener('wheel',e=>{e.preventDefault();zoomBy(Math.exp(-e.deltaY*.0015))},{passive:false});window.addEventListener('keydown',e=>{const tag=e.target?.tagName?.toLowerCase?.()||'';if(['input','textarea','select'].includes(tag))return;if(e.key==='+'||e.key==='='||e.code==='NumpadAdd'){e.preventDefault();zoomBy(1.12)}else if(e.key==='-'||e.key==='_'||e.code==='NumpadSubtract'){e.preventDefault();zoomBy(1/1.12)}else if(e.key==='0'||e.code==='Numpad0'){e.preventDefault();setZoom(1)}});
+showSinglesBox.addEventListener('change',render);showLabelsBox.addEventListener('change',render);pruneBlockedBox.addEventListener('change',render);
+const btnCourse=document.getElementById('btnCourse'),btn360=document.getElementById('btn360'),btn720=document.getElementById('btn720'),btnClear=document.getElementById('btnClear'),btnReset=document.getElementById('btnReset'),speedSlider=document.getElementById('speed'),speedValue=document.getElementById('speedValue'),methodButtons={course:btnCourse,half:btn360,extent:btn720};
+function updateSpeedLabel(){speedValue.textContent=`${animation.speed.toFixed(1)} leads/s`}speedSlider.addEventListener('input',()=>{animation.speed=Number(speedSlider.value);updateSpeedLabel()});
+function stopAnimation({clearState=false}={}){animation.running=false;animation.lastTime=null;if(animation.rafId!==null){cancelAnimationFrame(animation.rafId);animation.rafId=null}Object.values(methodButtons).forEach(b=>b.classList.remove('active'));if(clearState){animation.visited.clear();animation.blocked.clear()}render()}
+function callDescription(step){if(step.type==='P')return'Plain lead';const pos=step.callPos==='W'?'Wrong':step.callPos==='H'?'Home':step.callPos||'';return`${EDGE_INFO[step.type].name}${pos?` at ${pos}`:''}`}
+function animationFrame(now){if(!animation.running||!animation.methodKey)return;const method=METHODS[animation.methodKey];if(animation.lastTime===null)animation.lastTime=now;const dt=Math.min(.1,(now-animation.lastTime)/1000);animation.lastTime=now;animation.flashPhase+=dt*14;animation.progress+=dt*animation.speed;
+  const current=method.steps[animation.stepIndex];if(!animation.greyedThisStep&&animation.progress>=11/12){if(!animation.visited.has(current.penultimate))animation.blocked.add(current.penultimate);animation.greyedThisStep=true;methodInfo.textContent=`${method.name}: lead ${animation.stepIndex+1} of ${method.leadCount}. ${current.penultimate} has just been rung immediately before ${current.to}; it is now grey and unavailable as a future lead end.`}
+  while(animation.progress>=1&&animation.running){animation.progress-=1;const finished=method.steps[animation.stepIndex];animation.visited.add(finished.to);animation.blocked.delete(finished.to);animation.stepIndex++;animation.greyedThisStep=false;if(animation.stepIndex>=method.steps.length){animation.running=false;animation.progress=0;animation.lastTime=null;animation.rafId=null;Object.values(methodButtons).forEach(b=>b.classList.remove('active'));methodInfo.textContent=`${method.name} complete: ${method.leadCount} leads = ${method.changes} changes. ${animation.visited.size} lead ends visited; ${animation.blocked.size} other possible lead ends greyed because those rows were already rung inside leads.`;render();return}}
+  if(animation.progress<11/12){const step=method.steps[animation.stepIndex];methodInfo.textContent=`${method.name} (${method.notation}): lead ${animation.stepIndex+1} of ${method.leadCount}. ${step.from} → ${step.to}. ${callDescription(step)}. Preceding row: ${step.penultimate}.`}
+  render();animation.rafId=requestAnimationFrame(animationFrame)}
+function playMethod(key){stopAnimation({clearState:true});if(key==='extent')showSinglesBox.checked=true;animation.methodKey=key;animation.stepIndex=0;animation.progress=0;animation.greyedThisStep=false;animation.flashPhase=0;animation.visited.add('123456');animation.running=true;animation.lastTime=null;methodButtons[key].classList.add('active');methodInfo.textContent=`${METHODS[key].name} starting from rounds.`;render();animation.rafId=requestAnimationFrame(animationFrame)}
+btnCourse.addEventListener('click',()=>playMethod('course'));btn360.addEventListener('click',()=>playMethod('half'));btn720.addEventListener('click',()=>playMethod('extent'));btnClear.addEventListener('click',()=>{stopAnimation({clearState:true});animation.methodKey=null;animation.stepIndex=0;animation.progress=0;animation.greyedThisStep=false;methodInfo.textContent='Choose an animation.'});btnReset.addEventListener('click',()=>{rotX=-.42;rotY=.24;zoom=1;render()});updateSpeedLabel();render();
+</script>
+</body>
+</html>
